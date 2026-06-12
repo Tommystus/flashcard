@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kanji Flashcards</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700&family=Noto+Serif+JP:wght@700&display=swap');
+
+        .kanji-text { font-family: 'Noto Serif JP', serif; }
+        .kana-text { font-family: 'Noto Sans JP', sans-serif; }
+        
+        .fade-transition {
+            transition: all 0.2s ease-in-out;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 min-h-screen flex flex-col items-center p-4 kana-text">
+
+    <div class="w-full max-w-md">
+        <header class="text-center mb-6">
+            <h1 class="text-3xl font-bold text-green-600 mb-2">Kanji Mastery</h1>
+            
+            <div class="flex items-center justify-center gap-2 mb-4">
+                <label for="startPhase" class="text-xs font-bold text-gray-400 uppercase tracking-wider">Start with:</label>
+                <select id="startPhase" class="bg-white border border-gray-300 text-gray-700 text-sm rounded-lg px-2 py-1 focus:ring-green-500 focus:border-green-500 outline-none">
+                    <option value="0">Kanji</option>
+                    <option value="1">Definition</option>
+                    <option value="2">Reading</option>
+                </select>
+            </div>
+
+            <div id="progress" class="text-sm font-semibold text-gray-500">Loading...</div>
+            
+            <div class="flex justify-center gap-2 mt-2">
+                <div id="dot-0" class="h-2 w-8 rounded-full bg-green-500 transition-all"></div>
+                <div id="dot-1" class="h-2 w-8 rounded-full bg-gray-300 transition-all"></div>
+                <div id="dot-2" class="h-2 w-8 rounded-full bg-gray-300 transition-all"></div>
+            </div>
+        </header>
+
+        <div id="flashcard" class="relative w-full aspect-[3/2] cursor-pointer group">
+            <div id="card-body" class="w-full h-full shadow-xl rounded-2xl bg-white border-2 border-green-500 flex flex-col items-center justify-center p-6 text-center transition-all duration-300 transform active:scale-95">
+                
+                <div id="card-content" class="fade-transition flex flex-col items-center">
+                    </div>
+
+                <div class="absolute bottom-4 text-gray-300 text-xs uppercase tracking-widest font-bold">
+                    Tap to reveal next
+                </div>
+            </div>
+        </div>
+
+        <div class="flex justify-between items-center mt-10 gap-4">
+            <button id="prevBtn" class="flex-1 bg-white border border-gray-300 py-3 rounded-xl font-bold hover:bg-gray-50 active:scale-95 transition">Prev</button>
+            <button id="shuffleBtn" title="Shuffle Deck" class="bg-blue-500 p-3 rounded-xl hover:bg-blue-600 transition text-white">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 3h5v5"/><path d="M4 20L21 3"/><path d="M21 16v5h-5"/><path d="M15 15l6 6"/><path d="M4 4l5 5"/></svg>
+            </button>
+            <button id="nextBtn" class="flex-1 bg-green-600 text-white py-3 rounded-xl font-bold hover:bg-green-700 active:scale-95 transition">Next</button>
+        </div>
+        
+        <div class="mt-8 p-4 bg-white rounded-lg border border-gray-200 shadow-sm text-center">
+            <p class="text-gray-400 text-xs uppercase tracking-widest font-bold">Shortcuts</p>
+            <p class="text-gray-500 text-sm mt-1">Space/Tap: Cycle | Arrows: Change Card</p>
+        </div>
+    </div>
+
+    <script>
+        const vocabulary = [
+            { kanji: "予約", hiragana: "よやく", romaji: "yokaku", definition: "reservation/booking", example: "今 チケットを予約します" },
+            { kanji: "探し", hiragana: "さがし", romaji: "sagashi", definition: "look for", example: "いいホテルを探しましょう" },
+            { kanji: "泊まり", hiragana: "とまり", romaji: "tomari", definition: "stay", example: "いいホテルに泊まりませんか" },
+            { kanji: "部屋", hiragana: "へや", romaji: "heya", definition: "room", example: "" },
+            { kanji: "書き", hiragana: "かき", romaji: "kaki", definition: "write", example: "記事を書きます" },
+            { kanji: "記事", hiragana: "きじ", romaji: "kiji", definition: "article", example: "記事を書きます" },
+            { kanji: "番号", hiragana: "ばんごう", romaji: "bango~", definition: "number", example: "" },
+            { kanji: "鍵", hiragana: "かぎ", romaji: "kagi", definition: "key", example: "これが鍵です" },
+            { kanji: "氷", hiragana: "こおり", romaji: "ko~ri", definition: "ice", example: "" },
+            { kanji: "水", hiragana: "みず", romaji: "mizu", definition: "water", example: "" },
+            { kanji: "牛乳", hiragana: "ぎゅうにゅう", romaji: "Gyūnyū", definition: "milk", example: "" },
+            { kanji: "生", hiragana: "なま", romaji: "nama", definition: "raw (raw food)", example: "" },
+            { kanji: "雪", hiragana: "ゆき", romaji: "yuki", definition: "snow", example: "" },
+            { kanji: "前", hiragana: "まえ", romaji: "mae", definition: "in front, before", example: "ATM はジムの前です" },
+            { kanji: "隣", hiragana: "となり", romaji: "tonari", definition: "next to", example: "ATM の隣で会いましょう" },
+            { kanji: "晴れ", hiragana: "はれ", romaji: "hare", definition: "sunny", example: "晴れの日は" },
+            { kanji: "動物", hiragana: "どうぶつ", romaji: "do~butsu", definition: "animal", example: "" },
+            { kanji: "学校", hiragana: "がっこう", romaji: "gakko~", definition: "school", example: "" },
+            { kanji: "お茶", hiragana: "おちゃ", romaji: "ocha", definition: "tea", example: "" },
+            { kanji: "博物館", hiragana: "はくぶつかん", romaji: "hakubutsukan", definition: "museum", example: "" },
+            { kanji: "自販機", hiragana: "じはんき", romaji: "jihanki", definition: "vending machine", example: "" },
+            { kanji: "後ろ", hiragana: "うしろ", romaji: "ushiro", definition: "behind", example: "エレベーターはロビーの後ろです" },
+            { kanji: "無料", hiragana: "むりょう", romaji: "muryō", definition: "no charge, free", example: "お茶も無料です" },
+            { kanji: "安い", hiragana: "やすい", romaji: "yasui", definition: "cheap", example: "" },
+            { kanji: "静か", hiragana: "しずか", romaji: "shizuka", definition: "quiet", example: "" },
+            { kanji: "遠い", hiragana: "とおい", romaji: "tōi", definition: "far", example: "ホテルは遠いですか" },
+			{ kanji: "人気", hiragana: "にんき", romaji: "ninki", definition: "popular<br>", example: "人気の猫カフェ" },
+            { kanji: "ホテル", hiragana: "ホテル", romaji: "hoteru", definition: "hotel", example: "" },
+            { kanji: "甘い", hiragana: "あまい", romaji: "amai", definition: "sweet", example: "女子に甘い" },
+            { kanji: "ちょっと", hiragana: "ちょっと", romaji: "chotto", definition: "a little", example: "ちょっと難しいです" },
+            { kanji: "パスポート", hiragana: "パスポート", romaji: "pasupo~to", definition: "passport", example: "" },
+            { kanji: "ゴミ箱", hiragana: "ゴミばこ", romaji: "gomibako", definition: "trash can", example: "ゴミ箱はありますか" },
+            { kanji: "タオル", hiragana: "タオル", romaji: "taoru", definition: "towel", example: "" },
+            { kanji: "ゆっくり", hiragana: "ゆっくり", romaji: "yukkuri", definition: "slow, relax", example: "そこで ゆっくりしますか" },
+            { kanji: "暗い", hiragana: "くらい", romaji: "kurai", definition: "dark", example: "今はもう暗い" },
+            { kanji: "今", hiragana: "いま", romaji: "ima", definition: "now", example: "今はもう暗い" },
+            { kanji: "胡椒い", hiragana: "こしょう", romaji: "koshō", definition: "pepper", example: "" },
+            { kanji: "飲み物", hiragana: "のみもの", romaji: "nomimono", definition: "drink", example: "" },
+            { kanji: "一日", hiragana: "ついたち", romaji: "tsuitachi", definition: "1st day", example: "" },
+            { kanji: "二日", hiragana: "ふつか", romaji: "futsuka", definition: "2nd day", example: "" },
+            { kanji: "三日", hiragana: "みっか", romaji: "mikka", definition: "3th day", example: "" },
+            { kanji: "土曜日", hiragana: "どようび", romaji: "Doyōbi", definition: "Saturday", example: "" },
+            { kanji: "日曜日", hiragana: "にちようび", romaji: "Nichiyōbi", definition: "Sunday", example: "" },
+            { kanji: "一階", hiragana: "いっかい", romaji: "ikkai", definition: "1st floor", example: "" },
+            { kanji: "川", hiragana: "かわ", romaji: "kawa", definition: "river", example: "川は近くにありますか" },
+            { kanji: "弾き", hiragana: "ひき", romaji: "hiki", definition: "to play (instrument)", example: "" },
+            { kanji: "家族", hiragana: "かぞく", romaji: "kazoku", definition: "family", example: "" },
+            { kanji: "踊り", hiragana: "おどり", romaji: "odori", definition: "to dance", example: "" },
+            { kanji: "韓国", hiragana: "かんこく", romaji: "kangoku", definition: "Korea", example: "" },
+            { kanji: "中国", hiragana: "ちゅうごく", romaji: "chūgoku", definition: "China", example: "" },
+            { kanji: "腕時計", hiragana: "うでどけい", romaji: "udedokei", definition: "wrist watch", example: "" },
+            { kanji: "難しい", hiragana: "むずかしい", romaji: "muzukashī", definition: "difficult", example: "この漢字は難しいですね" }
+        ];
+
+        let currentIndex = 0;
+        let currentPhase = 0;
+        let startPhasePreference = 0;
+
+        const cardBody = document.getElementById('card-body');
+        const cardContent = document.getElementById('card-content');
+        const progressEl = document.getElementById('progress');
+        const startPhaseSelector = document.getElementById('startPhase');
+        
+        function updateDisplay() {
+            const word = vocabulary[currentIndex];
+            cardContent.classList.add('opacity-0');
+            
+            setTimeout(() => {
+                // Update dots
+                [0, 1, 2].forEach(i => {
+                    const dot = document.getElementById(`dot-${i}`);
+                    dot.className = i === currentPhase ? "h-2 w-8 rounded-full bg-green-500 transition-all" : "h-2 w-8 rounded-full bg-gray-300 transition-all";
+                });
+
+                // Phase Logic
+                if (currentPhase === 0) {
+                    cardBody.className = "w-full h-full shadow-xl rounded-2xl bg-white border-2 border-green-500 flex flex-col items-center justify-center p-6 text-center transition-all duration-300 transform active:scale-95";
+                    cardContent.innerHTML = `
+						<span class="kanji-text text-7xl font-bold text-gray-800">${word.kanji}</span>
+						<span class="text-xl text-blue-600 leading-tight"><br>${word.example}</span>
+						`;
+                } 
+                else if (currentPhase === 1) {
+                    cardBody.className = "w-full h-full shadow-xl rounded-2xl bg-green-50 border-2 border-green-600 flex flex-col items-center justify-center p-6 text-center transition-all duration-300 transform active:scale-95";
+                    cardContent.innerHTML = `
+                        <span class="text-sm text-green-600 uppercase font-bold mb-2 tracking-widest">Meaning</span>
+                        <span class="text-3xl font-medium text-gray-800 leading-tight">${word.definition}</span>
+                    `;
+                } 
+                else {
+                    cardBody.className = "w-full h-full shadow-xl rounded-2xl bg-blue-50 border-2 border-blue-400 flex flex-col items-center justify-center p-6 text-center transition-all duration-300 transform active:scale-95";
+                    cardContent.innerHTML = `
+                        <span class="text-4xl font-bold text-blue-800 mb-2">${word.hiragana}</span>
+                        <span class="text-xl text-blue-600 italic">${word.romaji}</span>
+                    `;
+                }
+
+                progressEl.textContent = `Card ${currentIndex + 1} / ${vocabulary.length}`;
+                cardContent.classList.remove('opacity-0');
+            }, 100);
+        }
+
+        function cyclePhase() {
+			if ((startPhasePreference === 2) || (startPhasePreference === 0)) {
+            	currentPhase = (currentPhase + 2) % 3;
+			} else {
+            	currentPhase = (currentPhase + 1) % 3;
+			}
+            updateDisplay();
+        }
+
+        function nextCard() {
+            currentIndex = (currentIndex + 1) % vocabulary.length;
+            currentPhase = startPhasePreference; // Reset to preferred start state
+            updateDisplay();
+        }
+
+        function prevCard() {
+            currentIndex = (currentIndex - 1 + vocabulary.length) % vocabulary.length;
+            currentPhase = startPhasePreference; // Reset to preferred start state
+            updateDisplay();
+        }
+
+        function shuffle() {
+            for (let i = vocabulary.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [vocabulary[i], vocabulary[j]] = [vocabulary[j], vocabulary[i]];
+            }
+            currentIndex = 0;
+            currentPhase = startPhasePreference;
+            updateDisplay();
+        }
+
+        // Event Listeners
+        startPhaseSelector.addEventListener('change', (e) => {
+            startPhasePreference = parseInt(e.target.value);
+            currentPhase = startPhasePreference; // Update current card immediately
+            updateDisplay();
+        });
+
+        document.getElementById('flashcard').addEventListener('click', cyclePhase);
+        document.getElementById('nextBtn').addEventListener('click', nextCard);
+        document.getElementById('prevBtn').addEventListener('click', prevCard);
+        document.getElementById('shuffleBtn').addEventListener('click', shuffle);
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === ' ' || e.key === 'Enter') {
+                e.preventDefault();
+                cyclePhase();
+            }
+            if (e.key === 'ArrowRight') nextCard();
+            if (e.key === 'ArrowLeft') prevCard();
+        });
+
+        window.onload = shuffle;
+    </script>
+</body>
+</html>
