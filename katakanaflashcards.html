@@ -119,14 +119,14 @@
                     cardBody.className = "w-full h-full shadow-xl rounded-2xl bg-green-50 border-2 border-green-600 flex flex-col items-center justify-center p-6 text-center transition-all duration-300 transform active:scale-95";
                     cardContent.innerHTML = `
                         <span class="text-sm text-green-600 uppercase font-bold mb-2 tracking-widest">Meaning</span>
-                        <span class="text-3xl font-medium text-gray-800 leading-tight">${word.definition}</span>
+                        <span class="text-4xl font-medium text-gray-800 leading-tight">${word.definition}</span>
                     `;
                 } 
                 else {
                     cardBody.className = "w-full h-full shadow-xl rounded-2xl bg-blue-50 border-2 border-blue-400 flex flex-col items-center justify-center p-6 text-center transition-all duration-300 transform active:scale-95";
                     cardContent.innerHTML = `
-                        <span class="text-4xl font-bold text-blue-800 mb-2">${word.hiragana}</span>
-                        <span class="text-xl text-blue-600 italic">${word.romaji}</span>
+                        <span class="text-xl text-blue-600 italic">${word.hiragana}</span>
+                        <span class="text-5xl font-bold text-blue-800 mb-2">${word.romaji}</span>
                     `;
                 }
 
