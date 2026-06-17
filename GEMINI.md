@@ -10,6 +10,7 @@ The project consists of static HTML files that provide a user-friendly interface
 - **HTML5/JavaScript**: Core structure and interactivity.
 - **Tailwind CSS**: Styling and responsive design (loaded via CDN).
 - **Google Fonts**: Custom Japanese fonts (`Noto Sans JP`, `Noto Serif JP`).
+- **Speech Synthensis**:  Speak word and translate example text
 
 ## Key Files
 
@@ -35,6 +36,11 @@ To use the flashcards, simply open any of the `.html` files in a web browser.
 
 ### Controls
 - **Tap/Click Card / Space / Enter**: Cycle through the current card's phases (Term -> Meaning -> Reading).
+  - Phase 0:  Display Kanji / Katakana and example
+    * With voice speaker icon and Google Translation link for the word and example text
+  - Phase 1:  Display meaning / definition
+  - Phase 2:  Display hiragana and romanji
+    * With voice speaker icon and Google Translation link for the word
 - **Next / Arrow Right**: Move to the next card.
 - **Prev / Arrow Left**: Move to the previous card.
 - **Shuffle**: Randomize the current deck.

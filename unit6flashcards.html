@@ -130,6 +130,30 @@
         const cardContent = document.getElementById('card-content');
         const progressEl = document.getElementById('progress');
         const startPhaseSelector = document.getElementById('startPhase');
+
+        function speakText(text, event) {
+            if (event) event.stopPropagation();
+            if ('speechSynthesis' in window) {
+                window.speechSynthesis.cancel();
+                const utterance = new SpeechSynthesisUtterance(text);
+                utterance.lang = 'ja-JP';
+                
+                // Try to use a Japanese voice if loaded
+                const voices = window.speechSynthesis.getVoices();
+                const jaVoice = voices.find(v => v.lang.startsWith('ja'));
+                if (jaVoice) utterance.voice = jaVoice;
+                
+                window.speechSynthesis.speak(utterance);
+            } else {
+                alert("Speech synthesis not supported in this browser.");
+            }
+        }
+
+        function translateText(text, event) {
+            if (event) event.stopPropagation();
+            const url = `https://translate.google.com/?sl=ja&tl=en&text=${encodeURIComponent(text)}&op=translate`;
+            window.open(url, '_blank');
+        }
         
         function updateDisplay() {
             const word = vocabulary[currentIndex];
@@ -146,9 +170,39 @@
                 if (currentPhase === 0) {
                     cardBody.className = "w-full h-full shadow-xl rounded-2xl bg-white border-2 border-green-500 flex flex-col items-center justify-center p-6 text-center transition-all duration-300 transform active:scale-95";
                     cardContent.innerHTML = `
-						<span class="kanji-text text-7xl font-bold text-gray-800">${word.kanji}</span>
-						<span class="text-xl text-blue-600 leading-tight"><br>${word.example}</span>
-						`;
+                        <div class="flex items-center justify-center gap-3">
+                            <span class="kanji-text text-7xl font-bold text-gray-800">${word.kanji}</span>
+                            <div class="flex flex-col gap-1.5">
+                                <button onclick="speakText('${word.kanji}', event)" class="p-2 rounded-full bg-gray-50 hover:bg-green-100 text-gray-500 hover:text-green-600 transition shadow-sm" title="Speak Word">
+                                    <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z"></path>
+                                    </svg>
+                                </button>
+                                <button onclick="translateText('${word.kanji}', event)" class="p-2 rounded-full bg-gray-50 hover:bg-blue-100 text-gray-500 hover:text-blue-600 transition shadow-sm" title="Translate Word">
+                                    <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9h7M11 21l5-10 5 10M12.751 5C11.783 11.37 7.363 16.5 3 18.785M12 9.355a17.897 17.897 0 01-2.207 4.145"></path>
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+                        ${word.example ? `
+                        <div class="mt-4 p-3 bg-blue-50 border border-blue-100 rounded-xl flex items-center justify-between gap-4 max-w-sm">
+                            <span class="text-base text-blue-800 font-medium leading-snug text-left">${word.example}</span>
+                            <div class="flex gap-1.5 flex-shrink-0">
+                                <button onclick="speakText('${word.example}', event)" class="p-1.5 rounded-lg bg-white hover:bg-blue-100 text-blue-500 hover:text-blue-700 transition shadow-sm" title="Speak Example">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z"></path>
+                                    </svg>
+                                </button>
+                                <button onclick="translateText('${word.example}', event)" class="p-1.5 rounded-lg bg-white hover:bg-blue-100 text-blue-500 hover:text-blue-700 transition shadow-sm" title="Translate Example">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9h7M11 21l5-10 5 10M12.751 5C11.783 11.37 7.363 16.5 3 18.785M12 9.355a17.897 17.897 0 01-2.207 4.145"></path>
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+                        ` : ''}
+                    `;
                 } 
                 else if (currentPhase === 1) {
                     cardBody.className = "w-full h-full shadow-xl rounded-2xl bg-green-50 border-2 border-green-600 flex flex-col items-center justify-center p-6 text-center transition-all duration-300 transform active:scale-95";
@@ -160,7 +214,14 @@
                 else {
                     cardBody.className = "w-full h-full shadow-xl rounded-2xl bg-blue-50 border-2 border-blue-400 flex flex-col items-center justify-center p-6 text-center transition-all duration-300 transform active:scale-95";
                     cardContent.innerHTML = `
-                        <span class="text-4xl font-bold text-blue-800 mb-2">${word.hiragana}</span>
+                        <div class="flex items-center justify-center gap-3 mb-2">
+                            <span class="text-4xl font-bold text-blue-800">${word.hiragana}</span>
+                            <button onclick="speakText('${word.hiragana}', event)" class="p-1.5 rounded-full bg-white hover:bg-blue-100 text-blue-500 hover:text-blue-700 transition shadow-sm" title="Speak Reading">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z"></path>
+                                </svg>
+                            </button>
+                        </div>
                         <span class="text-xl text-blue-600 italic">${word.romaji}</span>
                     `;
                 }
