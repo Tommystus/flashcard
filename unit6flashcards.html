@@ -33,10 +33,11 @@
 
             <div id="progress" class="text-sm font-semibold text-gray-500">Loading...</div>
             
-            <div class="flex justify-center gap-2 mt-2">
-                <div id="dot-0" class="h-2 w-8 rounded-full bg-green-500 transition-all"></div>
-                <div id="dot-1" class="h-2 w-8 rounded-full bg-gray-300 transition-all"></div>
-                <div id="dot-2" class="h-2 w-8 rounded-full bg-gray-300 transition-all"></div>
+            <div class="flex items-center justify-center gap-2 mt-3" id="speech-rate-container">
+                <span class="text-xs font-bold text-gray-400 uppercase tracking-wider">Speak:</span>
+                <button onclick="setSpeechRate(1.0, event)" id="rate-normal" class="px-3 py-0.5 rounded-full text-xs font-semibold bg-green-500 text-white transition-all shadow-sm">Normal</button>
+                <button onclick="setSpeechRate(0.85, event)" id="rate-slow" class="px-3 py-0.5 rounded-full text-xs font-semibold bg-gray-200 text-gray-600 hover:bg-gray-300 transition-all shadow-sm">Slow</button>
+                <button onclick="setSpeechRate(0.7, event)" id="rate-slower" class="px-3 py-0.5 rounded-full text-xs font-semibold bg-gray-200 text-gray-600 hover:bg-gray-300 transition-all shadow-sm">Slower</button>
             </div>
         </header>
 
@@ -125,11 +126,32 @@
         let currentIndex = 0;
         let currentPhase = 0;
         let startPhasePreference = 0;
+        let currentSpeechRate = 1.0;
 
         const cardBody = document.getElementById('card-body');
         const cardContent = document.getElementById('card-content');
         const progressEl = document.getElementById('progress');
         const startPhaseSelector = document.getElementById('startPhase');
+
+        function setSpeechRate(rate, event) {
+            if (event) event.stopPropagation();
+            currentSpeechRate = rate;
+            
+            const rates = [
+                { id: 'rate-normal', value: 1.0 },
+                { id: 'rate-slow', value: 0.85 },
+                { id: 'rate-slower', value: 0.7 }
+            ];
+            
+            rates.forEach(r => {
+                const btn = document.getElementById(r.id);
+                if (r.value === rate) {
+                    btn.className = "px-3 py-0.5 rounded-full text-xs font-semibold bg-green-500 text-white transition-all shadow-sm";
+                } else {
+                    btn.className = "px-3 py-0.5 rounded-full text-xs font-semibold bg-gray-200 text-gray-600 hover:bg-gray-300 transition-all shadow-sm";
+                }
+            });
+        }
 
         function speakText(text, event) {
             if (event) event.stopPropagation();
@@ -137,6 +159,7 @@
                 window.speechSynthesis.cancel();
                 const utterance = new SpeechSynthesisUtterance(text);
                 utterance.lang = 'ja-JP';
+                utterance.rate = currentSpeechRate;
                 
                 // Try to use a Japanese voice if loaded
                 const voices = window.speechSynthesis.getVoices();
@@ -160,12 +183,6 @@
             cardContent.classList.add('opacity-0');
             
             setTimeout(() => {
-                // Update dots
-                [0, 1, 2].forEach(i => {
-                    const dot = document.getElementById(`dot-${i}`);
-                    dot.className = i === currentPhase ? "h-2 w-8 rounded-full bg-green-500 transition-all" : "h-2 w-8 rounded-full bg-gray-300 transition-all";
-                });
-
                 // Phase Logic
                 if (currentPhase === 0) {
                     cardBody.className = "w-full h-full shadow-xl rounded-2xl bg-white border-2 border-green-500 flex flex-col items-center justify-center p-6 text-center transition-all duration-300 transform active:scale-95";

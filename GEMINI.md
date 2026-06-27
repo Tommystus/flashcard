@@ -40,7 +40,6 @@ To use the flashcards, simply open any of the `.html` files in a web browser.
     * With voice speaker icon and Google Translation link for the word and example text
   - Phase 1:  Display meaning / definition
   - Phase 2:  Display hiragana and romanji
-    * With voice speaker icon and Google Translation link for the word
 - **Next / Arrow Right**: Move to the next card.
 - **Prev / Arrow Left**: Move to the previous card.
 - **Shuffle**: Randomize the current deck.
