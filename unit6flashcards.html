@@ -107,7 +107,7 @@
             { kanji: "胡椒い", hiragana: "こしょう", romaji: "koshō", definition: "pepper", example: "" },
             { kanji: "飲み物", hiragana: "のみもの", romaji: "nomimono", definition: "drink", example: "" },
             { kanji: "一日", hiragana: "ついたち", romaji: "tsuitachi", definition: "1st day", example: "" },
-            { kanji: "二日", hiragana: "ふつか", romaji: "futsuka", definition: "2nd day", example: "" },
+            { kanji: "二日", hiragana: "ふつか", romaji: "futsuka", definition: "2nd day", example: "毎月二日はセールの日です" },
             { kanji: "三日", hiragana: "みっか", romaji: "mikka", definition: "3th day", example: "" },
             { kanji: "土曜日", hiragana: "どようび", romaji: "Doyōbi", definition: "Saturday", example: "" },
             { kanji: "日曜日", hiragana: "にちようび", romaji: "Nichiyōbi", definition: "Sunday", example: "" },
@@ -214,14 +214,7 @@
                 else {
                     cardBody.className = "w-full h-full shadow-xl rounded-2xl bg-blue-50 border-2 border-blue-400 flex flex-col items-center justify-center p-6 text-center transition-all duration-300 transform active:scale-95";
                     cardContent.innerHTML = `
-                        <div class="flex items-center justify-center gap-3 mb-2">
-                            <span class="text-4xl font-bold text-blue-800">${word.hiragana}</span>
-                            <button onclick="speakText('${word.hiragana}', event)" class="p-1.5 rounded-full bg-white hover:bg-blue-100 text-blue-500 hover:text-blue-700 transition shadow-sm" title="Speak Reading">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z"></path>
-                                </svg>
-                            </button>
-                        </div>
+                        <span class="text-4xl font-bold text-blue-800">${word.hiragana}</span>
                         <span class="text-xl text-blue-600 italic">${word.romaji}</span>
                     `;
                 }

@@ -180,14 +180,7 @@
                     cardBody.className = "w-full h-full shadow-xl rounded-2xl bg-blue-50 border-2 border-blue-400 flex flex-col items-center justify-center p-6 text-center transition-all duration-300 transform active:scale-95";
                     cardContent.innerHTML = `
                         ${word.hiragana ? `<span class="text-xl text-blue-600 italic mb-1">${word.hiragana}</span>` : ''}
-                        <div class="flex items-center justify-center gap-3 mb-2">
                             <span class="text-5xl font-bold text-blue-800">${word.romaji}</span>
-                            <button onclick="speakText('${word.hiragana || word.kanji}', event)" class="p-1.5 rounded-full bg-white hover:bg-blue-100 text-blue-500 hover:text-blue-700 transition shadow-sm" title="Speak Reading">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z"></path>
-                                </svg>
-                            </button>
-                        </div>
                     `;
                 }
 
